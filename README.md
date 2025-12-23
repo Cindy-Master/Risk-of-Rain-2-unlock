@@ -57,6 +57,10 @@ python app.py
     └── index.html     # Web 界面
 ```
 
+### DLC解锁补丁  version.dll
+## 放到游戏根目录即可
+
 ## 许可证
 
 MIT License
+

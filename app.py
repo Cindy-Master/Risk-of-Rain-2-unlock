@@ -65,6 +65,27 @@ def get_drives():
     return drives
 
 
+def get_game_directory():
+    """获取游戏安装目录"""
+    steam_paths = get_steam_paths()
+
+    for steam_path in steam_paths:
+        # 检查 appmanifest 确认游戏在这个库
+        manifest = os.path.join(steam_path, "steamapps", "appmanifest_632360.acf")
+        if os.path.isfile(manifest):
+            game_path = os.path.join(steam_path, "steamapps", "common", "Risk of Rain 2")
+            if os.path.isdir(game_path):
+                return game_path
+
+    # 备选：直接检查常见路径
+    for steam_path in steam_paths:
+        game_path = os.path.join(steam_path, "steamapps", "common", "Risk of Rain 2")
+        if os.path.isdir(game_path):
+            return game_path
+
+    return None
+
+
 def get_steam_paths():
     """获取 Steam 路径"""
     paths = []
@@ -571,6 +592,78 @@ def api_lock_all(profile_id):
 
     save_profile(profile_id)
     return jsonify({"success": True})
+
+
+@app.route('/api/game-path')
+def api_game_path():
+    """获取游戏安装目录"""
+    game_path = get_game_directory()
+    if game_path:
+        dll_exists = os.path.isfile(os.path.join(game_path, "version.dll"))
+        return jsonify({"path": game_path, "dll_installed": dll_exists})
+    return jsonify({"path": None, "dll_installed": False})
+
+
+@app.route('/api/dlc/install', methods=['POST'])
+def api_install_dlc():
+    """安装 DLC 补丁（复制 version.dll 到游戏目录）"""
+    data = request.json or {}
+    manual_path = data.get("path", "")
+
+    # 优先使用手动输入的路径
+    if manual_path:
+        if os.path.isdir(manual_path):
+            game_path = manual_path
+        else:
+            return jsonify({"success": False, "message": "输入的路径不存在", "need_path": True})
+    else:
+        game_path = get_game_directory()
+
+    if not game_path:
+        return jsonify({"success": False, "message": "未找到游戏目录，请手动输入路径", "need_path": True})
+
+    # 获取 version.dll 源文件路径
+    source_dll = get_resource_path("version.dll")
+    if not os.path.isfile(source_dll):
+        return jsonify({"success": False, "message": "未找到 version.dll 文件"})
+
+    target_dll = os.path.join(game_path, "version.dll")
+
+    try:
+        shutil.copyfile(source_dll, target_dll)
+        return jsonify({"success": True, "message": "DLC 补丁已安装", "path": target_dll})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"安装失败: {str(e)}"})
+
+
+@app.route('/api/dlc/uninstall', methods=['POST'])
+def api_uninstall_dlc():
+    """卸载 DLC 补丁（删除游戏目录的 version.dll）"""
+    data = request.json or {}
+    manual_path = data.get("path", "")
+
+    # 优先使用手动输入的路径
+    if manual_path:
+        if os.path.isdir(manual_path):
+            game_path = manual_path
+        else:
+            return jsonify({"success": False, "message": "输入的路径不存在", "need_path": True})
+    else:
+        game_path = get_game_directory()
+
+    if not game_path:
+        return jsonify({"success": False, "message": "未找到游戏目录，请手动输入路径", "need_path": True})
+
+    target_dll = os.path.join(game_path, "version.dll")
+
+    if not os.path.isfile(target_dll):
+        return jsonify({"success": False, "message": "请确认目录下有 DLC 补丁文件 (version.dll)"})
+
+    try:
+        os.remove(target_dll)
+        return jsonify({"success": True, "message": "DLC 补丁已移除"})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"移除失败: {str(e)}"})
 
 
 def open_browser():

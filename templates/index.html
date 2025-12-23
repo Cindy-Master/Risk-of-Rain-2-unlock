@@ -1297,6 +1297,18 @@
 
             <div class="actions-grid">
                 <div class="action-card">
+                    <div class="action-icon">🎮</div>
+                    <div class="action-title">解锁全DLC</div>
+                    <div class="action-desc">安装 DLC 补丁到游戏目录</div>
+                    <button class="cyber-btn success" onclick="installDLC()">安装</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">🗑️</div>
+                    <div class="action-title">移除DLC补丁</div>
+                    <div class="action-desc">从游戏目录移除 DLC 补丁</div>
+                    <button class="cyber-btn danger" onclick="uninstallDLC()">移除</button>
+                </div>
+                <div class="action-card">
                     <div class="action-icon">🔓</div>
                     <div class="action-title">一键全解锁</div>
                     <div class="action-desc">解锁所有角色、技能、物品、成就和图鉴</div>
@@ -1957,6 +1969,54 @@
                 toast.style.transform = 'translateX(50px)';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        async function installDLC(manualPath = null) {
+            try {
+                const body = manualPath ? { path: manualPath } : {};
+                const response = await fetch('/api/dlc/install', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, 'success');
+                } else if (result.need_path) {
+                    const path = prompt('未找到游戏目录，请手动输入游戏安装路径：\n例如：D:\\Steam\\steamapps\\common\\Risk of Rain 2');
+                    if (path) {
+                        installDLC(path.trim());
+                    }
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('安装失败', 'error');
+            }
+        }
+
+        async function uninstallDLC(manualPath = null) {
+            try {
+                const body = manualPath ? { path: manualPath } : {};
+                const response = await fetch('/api/dlc/uninstall', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, 'success');
+                } else if (result.need_path) {
+                    const path = prompt('未找到游戏目录，请手动输入游戏安装路径：\n例如：D:\\Steam\\steamapps\\common\\Risk of Rain 2');
+                    if (path) {
+                        uninstallDLC(path.trim());
+                    }
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('移除失败', 'error');
+            }
         }
     </script>
 </body>

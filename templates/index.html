@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雨中冒险2 存档解锁器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --void-black: #050508;
+            --deep-space: #0a0a12;
+            --nebula-purple: #1a1025;
+            --cosmic-blue: #0d1a2d;
+            --plasma-cyan: #00f0ff;
+            --energy-magenta: #ff00aa;
+            --solar-gold: #ffd700;
+            --lunar-silver: #c0c8d4;
+            --nova-white: #f0f4ff;
+            --blood-red: #ff3355;
+            --life-green: #00ff88;
+        }
+
+        @keyframes cosmicPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 1; }
+            93% { opacity: 0.8; }
+            94% { opacity: 1; }
+            96% { opacity: 0.9; }
+            97% { opacity: 1; }
+        }
+
+        @keyframes dataStream {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        @keyframes borderGlow {
+            0%, 100% {
+                box-shadow: 0 0 5px var(--plasma-cyan),
+                            inset 0 0 5px transparent;
+            }
+            50% {
+                box-shadow: 0 0 20px var(--plasma-cyan),
+                            0 0 40px rgba(0, 240, 255, 0.3),
+                            inset 0 0 10px rgba(0, 240, 255, 0.1);
+            }
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--void-black);
+            color: var(--nova-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Cosmic Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(26, 16, 37, 0.8) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(13, 26, 45, 0.8) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 240, 255, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        /* Star Field */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(1px 1px at 20px 30px, var(--nova-white), transparent),
+                radial-gradient(1px 1px at 40px 70px, var(--lunar-silver), transparent),
+                radial-gradient(1px 1px at 50px 160px, var(--plasma-cyan), transparent),
+                radial-gradient(1px 1px at 90px 40px, var(--nova-white), transparent),
+                radial-gradient(1px 1px at 130px 80px, var(--energy-magenta), transparent),
+                radial-gradient(1px 1px at 160px 120px, var(--nova-white), transparent);
+            background-size: 200px 200px;
+            animation: cosmicPulse 4s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Scanline Effect */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(transparent, rgba(0, 240, 255, 0.1), transparent);
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Main Header */
+        .header {
+            position: relative;
+            padding: 2rem 3rem;
+            background: linear-gradient(180deg, rgba(10, 10, 18, 0.95) 0%, transparent 100%);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--plasma-cyan), transparent);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo-img {
+            height: 70px;
+            width: auto;
+            filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.5));
+            transition: all 0.3s ease;
+        }
+
+        .logo-img:hover {
+            filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.8));
+            transform: scale(1.05);
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .logo-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--nova-white) 0%, var(--plasma-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: flicker 5s infinite;
+        }
+
+        .logo-text .subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: var(--lunar-silver);
+            opacity: 0.7;
+        }
+
+        /* Profile Selector */
+        .profile-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-selector label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--lunar-silver);
+        }
+
+        /* Custom Dropdown */
+        .cyber-dropdown {
+            position: relative;
+            min-width: 300px;
+        }
+
+        .cyber-dropdown-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(10, 10, 18, 0.98) 0%, rgba(13, 26, 45, 0.95) 100%);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            color: var(--nova-white);
+            padding: 0.9rem 1.2rem;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-dropdown-trigger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cyber-dropdown-trigger:hover::before {
+            left: 100%;
+        }
+
+        .cyber-dropdown-trigger:hover,
+        .cyber-dropdown.open .cyber-dropdown-trigger {
+            border-color: var(--plasma-cyan);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.3),
+                        inset 0 0 15px rgba(0, 240, 255, 0.05);
+        }
+
+        .cyber-dropdown-trigger .arrow {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid var(--plasma-cyan);
+            transition: transform 0.3s ease;
+            filter: drop-shadow(0 0 3px var(--plasma-cyan));
+        }
+
+        .cyber-dropdown.open .cyber-dropdown-trigger .arrow {
+            transform: rotate(180deg);
+        }
+
+        .cyber-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(10, 10, 18, 0.98) 0%, rgba(5, 5, 10, 0.99) 100%);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+        }
+
+        .cyber-dropdown.open .cyber-dropdown-menu {
+            max-height: 350px;
+            overflow-y: auto;
+            opacity: 1;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+                        0 0 30px rgba(0, 240, 255, 0.1);
+        }
+
+        .cyber-dropdown-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .cyber-dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .cyber-dropdown-menu::-webkit-scrollbar-thumb {
+            background: var(--plasma-cyan);
+        }
+
+        .cyber-dropdown-item {
+            padding: 0.9rem 1.2rem;
+            color: var(--lunar-silver);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .cyber-dropdown-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--plasma-cyan);
+            transform: scaleY(0);
+            transition: transform 0.2s ease;
+        }
+
+        .cyber-dropdown-item:hover {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--nova-white);
+            padding-left: 1.5rem;
+        }
+
+        .cyber-dropdown-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .cyber-dropdown-item.selected {
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--plasma-cyan);
+        }
+
+        .cyber-dropdown-item.selected::before {
+            transform: scaleY(1);
+            box-shadow: 0 0 10px var(--plasma-cyan);
+        }
+
+        .cyber-dropdown-item.placeholder {
+            color: rgba(192, 200, 212, 0.5);
+            font-style: italic;
+        }
+
+        /* Hidden select for form compatibility */
+        .cyber-dropdown select {
+            display: none;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem 3rem;
+        }
+
+        /* Stats Display */
+        .stats-display {
+            display: none;
+            margin-bottom: 3rem;
+        }
+
+        .stats-display.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1px;
+            background: rgba(0, 240, 255, 0.1);
+            padding: 1px;
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+        }
+
+        .stat-item {
+            background: rgba(10, 10, 18, 0.9);
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--plasma-cyan), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-item:hover::before {
+            opacity: 1;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--plasma-cyan);
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--lunar-silver);
+            opacity: 0.7;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: none;
+            margin-bottom: 2rem;
+        }
+
+        .nav-tabs.active {
+            display: flex;
+            gap: 0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 1.2rem 2rem;
+            background: rgba(10, 10, 18, 0.8);
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--lunar-silver);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--plasma-cyan);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-tab:hover {
+            background: rgba(0, 240, 255, 0.05);
+            color: var(--nova-white);
+        }
+
+        .nav-tab:hover::before {
+            width: 50%;
+        }
+
+        .nav-tab.active {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--plasma-cyan);
+            border-bottom-color: var(--plasma-cyan);
+        }
+
+        .nav-tab.active::before {
+            width: 100%;
+        }
+
+        /* Content Panels */
+        .panel {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Section Styling */
+        .section {
+            background: linear-gradient(135deg, rgba(10, 10, 18, 0.95) 0%, rgba(26, 16, 37, 0.3) 100%);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            margin-bottom: 2rem;
+            position: relative;
+            clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, transparent 50%, rgba(0, 240, 255, 0.3) 50%);
+        }
+
+        .section-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--plasma-cyan);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--plasma-cyan);
+            box-shadow: 0 0 10px var(--plasma-cyan);
+        }
+
+        .section-body {
+            padding: 2rem;
+        }
+
+        /* Cyber Buttons */
+        .cyber-btn {
+            position: relative;
+            padding: 0.7rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(0, 240, 255, 0.5);
+            color: var(--plasma-cyan);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cyber-btn:hover {
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .cyber-btn:hover::before {
+            left: 100%;
+        }
+
+        .cyber-btn.success {
+            border-color: var(--life-green);
+            color: var(--life-green);
+        }
+
+        .cyber-btn.success:hover {
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .cyber-btn.danger {
+            border-color: var(--blood-red);
+            color: var(--blood-red);
+        }
+
+        .cyber-btn.danger:hover {
+            background: rgba(255, 51, 85, 0.1);
+            box-shadow: 0 0 20px rgba(255, 51, 85, 0.3);
+        }
+
+        .cyber-btn.gold {
+            border-color: var(--solar-gold);
+            color: var(--solar-gold);
+        }
+
+        .cyber-btn.gold:hover {
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Search Box */
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cyber-input {
+            flex: 1;
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 0.8rem 1.2rem;
+            color: var(--nova-white);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .cyber-input:focus {
+            outline: none;
+            border-color: var(--plasma-cyan);
+            background: rgba(0, 240, 255, 0.05);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+
+        .cyber-input::placeholder {
+            color: rgba(192, 200, 212, 0.4);
+        }
+
+        .filter-select {
+            min-width: 180px;
+            flex: 0 0 auto;
+        }
+
+        /* Filter Select 样式 */
+        select.cyber-input {
+            appearance: none;
+            background: linear-gradient(135deg, rgba(10, 10, 18, 0.95) 0%, rgba(13, 26, 45, 0.9) 100%);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: var(--nova-white);
+            padding-right: 2.5rem;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2300f0ff' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+        }
+
+        select.cyber-input:hover,
+        select.cyber-input:focus {
+            border-color: var(--plasma-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+
+        select.cyber-input option {
+            background: #0a0a12;
+            color: var(--nova-white);
+            padding: 0.8rem;
+        }
+
+        /* Data Grid */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .data-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .data-grid::-webkit-scrollbar-track {
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .data-grid::-webkit-scrollbar-thumb {
+            background: var(--plasma-cyan);
+        }
+
+        /* Data Item */
+        .data-item {
+            background: rgba(10, 10, 18, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            padding: 1rem 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .data-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--lunar-silver);
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+
+        .data-item:hover {
+            background: rgba(0, 240, 255, 0.05);
+            border-color: rgba(0, 240, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .data-item.unlocked::before {
+            background: var(--life-green);
+            opacity: 1;
+            box-shadow: 0 0 10px var(--life-green);
+        }
+
+        .data-item.locked::before {
+            background: var(--lunar-silver);
+            opacity: 0.3;
+        }
+
+        .data-item.locked {
+            opacity: 0.6;
+        }
+
+        .data-item.locked:hover {
+            opacity: 1;
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--nova-white);
+            word-break: break-all;
+        }
+
+        .item-meta {
+            font-size: 0.8rem;
+            color: var(--lunar-silver);
+            opacity: 0.6;
+            margin-top: 0.25rem;
+        }
+
+        .item-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--lunar-silver);
+        }
+
+        .data-item.unlocked .status-dot {
+            background: var(--life-green);
+            box-shadow: 0 0 8px var(--life-green);
+        }
+
+        /* Character Cards */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .character-card {
+            background: linear-gradient(180deg, rgba(10, 10, 18, 0.95) 0%, rgba(26, 16, 37, 0.5) 100%);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .character-card:hover {
+            border-color: var(--plasma-cyan);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .character-header {
+            padding: 1.2rem 1.5rem;
+            background: rgba(0, 240, 255, 0.03);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .character-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .character-status {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: 1px solid;
+        }
+
+        .character-status.unlocked {
+            border-color: var(--life-green);
+            color: var(--life-green);
+        }
+
+        .character-status.locked {
+            border-color: var(--lunar-silver);
+            color: var(--lunar-silver);
+            opacity: 0.5;
+        }
+
+        .character-skills {
+            padding: 1rem;
+        }
+
+        .skill-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+
+        .skill-row:last-child {
+            border-bottom: none;
+        }
+
+        .skill-row:hover {
+            background: rgba(0, 240, 255, 0.03);
+        }
+
+        .skill-name {
+            font-size: 0.85rem;
+            color: var(--lunar-silver);
+            word-break: break-all;
+        }
+
+        /* Quick Actions */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .action-card {
+            background: rgba(10, 10, 18, 0.9);
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 40%, rgba(0, 240, 255, 0.03) 100%);
+            pointer-events: none;
+        }
+
+        .action-card:hover {
+            border-color: var(--plasma-cyan);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            filter: grayscale(0.3);
+        }
+
+        .action-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            color: var(--nova-white);
+        }
+
+        .action-desc {
+            font-size: 0.85rem;
+            color: var(--lunar-silver);
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* Coins Section */
+        .coins-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 2rem;
+            background: rgba(255, 215, 0, 0.03);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            flex-wrap: wrap;
+        }
+
+        .coins-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--solar-gold);
+        }
+
+        .coins-input {
+            width: 150px;
+            text-align: center;
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: var(--solar-gold);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            padding: 0.8rem;
+            -moz-appearance: textfield;
+        }
+
+        .coins-input::-webkit-outer-spin-button,
+        .coins-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .coins-input:focus {
+            outline: none;
+            border-color: var(--solar-gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.3;
+        }
+
+        .empty-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--lunar-silver);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-desc {
+            color: var(--lunar-silver);
+            opacity: 0.5;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            padding: 1rem 1.5rem;
+            background: rgba(10, 10, 18, 0.95);
+            border: 1px solid var(--plasma-cyan);
+            color: var(--nova-white);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: toastIn 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.success {
+            border-color: var(--life-green);
+        }
+
+        .toast.success::before {
+            content: '';
+            width: 4px;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: var(--life-green);
+        }
+
+        .toast.error {
+            border-color: var(--blood-red);
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(0, 240, 255, 0.1);
+            border-top-color: var(--plasma-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .nav-tab {
+                flex: none;
+                width: calc(50% - 0.5rem);
+            }
+
+            .character-grid,
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="/static/logo.png" alt="Risk of Rain 2" class="logo-img">
+                <div class="logo-text">
+                    <h1>存档解锁器</h1>
+                    <div class="subtitle">Profile Unlocker</div>
+                </div>
+            </div>
+            <div class="profile-selector">
+                <label>选择存档</label>
+                <div class="cyber-dropdown" id="profile-dropdown">
+                    <div class="cyber-dropdown-trigger" onclick="toggleDropdown()">
+                        <span class="dropdown-text">-- 请选择存档 --</span>
+                        <span class="arrow"></span>
+                    </div>
+                    <div class="cyber-dropdown-menu" id="profile-menu">
+                        <div class="cyber-dropdown-item placeholder" data-value="">-- 请选择存档 --</div>
+                    </div>
+                    <select id="profile-select" style="display:none;"></select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Stats Display -->
+        <div class="stats-display" id="stats-display">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-characters">0</div>
+                    <div class="stat-label">角色</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-items">0</div>
+                    <div class="stat-label">物品</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-achievements">0</div>
+                    <div class="stat-label">成就</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-logbook">0</div>
+                    <div class="stat-label">图鉴</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-coins">0</div>
+                    <div class="stat-label">月球币</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs" id="nav-tabs">
+            <button class="nav-tab active" data-panel="characters">角色</button>
+            <button class="nav-tab" data-panel="items">物品</button>
+            <button class="nav-tab" data-panel="achievements">成就</button>
+            <button class="nav-tab" data-panel="logbook">图鉴</button>
+            <button class="nav-tab" data-panel="quick">快捷操作</button>
+        </nav>
+
+        <!-- Panels -->
+        <div id="panel-characters" class="panel active">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">角色与技能</div>
+                    <div class="btn-group">
+                        <button class="cyber-btn success" onclick="unlockAllCharacters()">全部解锁</button>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="character-grid" id="character-grid">
+                        <div class="loading"><div class="loader"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-items" class="panel">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">物品与神器</div>
+                    <div class="btn-group">
+                        <button class="cyber-btn success" onclick="unlockAllItems()">全部解锁</button>
+                        <button class="cyber-btn danger" onclick="lockAllItems()">全部锁定</button>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="search-container">
+                        <input type="text" class="cyber-input" id="item-search" placeholder="搜索物品..." oninput="filterItems()">
+                        <select class="cyber-input filter-select" id="item-filter" onchange="filterItems()">
+                            <option value="all">全部</option>
+                            <option value="unlocked">已解锁</option>
+                            <option value="locked">未解锁</option>
+                            <option value="items">仅物品</option>
+                            <option value="artifacts">仅神器</option>
+                        </select>
+                    </div>
+                    <div class="data-grid" id="item-grid">
+                        <div class="loading"><div class="loader"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-achievements" class="panel">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">成就</div>
+                    <div class="btn-group">
+                        <button class="cyber-btn success" onclick="unlockAllAchievements()">全部解锁</button>
+                        <button class="cyber-btn danger" onclick="lockAllAchievements()">全部锁定</button>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="search-container">
+                        <input type="text" class="cyber-input" id="achievement-search" placeholder="搜索成就..." oninput="filterAchievements()">
+                        <select class="cyber-input filter-select" id="achievement-filter" onchange="filterAchievements()">
+                            <option value="all">全部</option>
+                            <option value="unlocked">已解锁</option>
+                            <option value="locked">未解锁</option>
+                        </select>
+                    </div>
+                    <div class="data-grid" id="achievement-grid">
+                        <div class="loading"><div class="loader"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-logbook" class="panel">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">物品图鉴</div>
+                    <div class="btn-group">
+                        <button class="cyber-btn success" onclick="unlockAllLogbook()">全部解锁</button>
+                        <button class="cyber-btn danger" onclick="clearLogbook()">全部清空</button>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="search-container">
+                        <input type="text" class="cyber-input" id="logbook-search" placeholder="搜索图鉴..." oninput="filterLogbook()">
+                        <select class="cyber-input filter-select" id="logbook-category" onchange="filterLogbook()">
+                            <option value="all">全部分类</option>
+                            <option value="Items">物品</option>
+                            <option value="Equipment">装备</option>
+                            <option value="Artifacts">神器</option>
+                            <option value="Drones">无人机</option>
+                        </select>
+                        <select class="cyber-input filter-select" id="logbook-filter" onchange="filterLogbook()">
+                            <option value="all">全部状态</option>
+                            <option value="unlocked">已解锁</option>
+                            <option value="locked">未解锁</option>
+                        </select>
+                    </div>
+                    <div class="data-grid" id="logbook-grid">
+                        <div class="loading"><div class="loader"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-quick" class="panel">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">月球币设置</div>
+                </div>
+                <div class="section-body">
+                    <div class="coins-panel">
+                        <span class="coins-label">当前月球币</span>
+                        <input type="number" class="coins-input" id="coins-input" min="0" max="2147483647" value="0">
+                        <button class="cyber-btn gold" onclick="setCoins()">设置</button>
+                        <button class="cyber-btn" onclick="setCoins(999)">999</button>
+                        <button class="cyber-btn" onclick="setCoins(9999)">9999</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-grid">
+                <div class="action-card">
+                    <div class="action-icon">🔓</div>
+                    <div class="action-title">一键全解锁</div>
+                    <div class="action-desc">解锁所有角色、技能、物品、成就和图鉴</div>
+                    <button class="cyber-btn success" onclick="unlockEverything()">执行</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">🔒</div>
+                    <div class="action-title">一键全锁定</div>
+                    <div class="action-desc">重置所有解锁内容（Commando 除外）</div>
+                    <button class="cyber-btn danger" onclick="lockEverything()">执行</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">👤</div>
+                    <div class="action-title">解锁全角色</div>
+                    <div class="action-desc">解锁所有幸存者角色及其技能</div>
+                    <button class="cyber-btn" onclick="unlockAllCharacters()">执行</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">🏆</div>
+                    <div class="action-title">解锁全成就</div>
+                    <div class="action-desc">解锁所有游戏内成就</div>
+                    <button class="cyber-btn" onclick="unlockAllAchievements()">执行</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">📖</div>
+                    <div class="action-title">解锁全图鉴</div>
+                    <div class="action-desc">解锁所有物品、装备、神器图鉴</div>
+                    <button class="cyber-btn" onclick="unlockAllLogbook()">执行</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">📦</div>
+                    <div class="action-title">解锁全物品</div>
+                    <div class="action-desc">解锁所有物品和神器</div>
+                    <button class="cyber-btn" onclick="unlockAllItems()">执行</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state">
+            <div class="empty-icon">📂</div>
+            <div class="empty-title">未选择存档</div>
+            <div class="empty-desc">请在上方下拉框中选择一个存档</div>
+        </div>
+    </main>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        let currentProfile = null;
+        let profileData = null;
+        let gameData = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadProfiles();
+            await loadGameData();
+            setupNavigation();
+            setupDropdownClose();
+        });
+
+        // 下拉框相关功能
+        function toggleDropdown() {
+            const dropdown = document.getElementById('profile-dropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function selectProfile(value, text) {
+            const dropdown = document.getElementById('profile-dropdown');
+            const trigger = dropdown.querySelector('.dropdown-text');
+            const items = dropdown.querySelectorAll('.cyber-dropdown-item');
+
+            // 更新显示文本
+            trigger.textContent = text;
+
+            // 更新选中状态
+            items.forEach(item => {
+                item.classList.remove('selected');
+                if (item.dataset.value === value) {
+                    item.classList.add('selected');
+                }
+            });
+
+            // 关闭下拉框
+            dropdown.classList.remove('open');
+
+            // 更新隐藏的select值并触发加载
+            document.getElementById('profile-select').value = value;
+            loadProfile();
+        }
+
+        function setupDropdownClose() {
+            // 点击外部关闭下拉框
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('profile-dropdown');
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
+            });
+        }
+
+        function setupNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+                });
+            });
+        }
+
+        async function loadProfiles() {
+            try {
+                const response = await fetch('/api/profiles');
+                const profiles = await response.json();
+
+                // 更新隐藏的原生select
+                const select = document.getElementById('profile-select');
+                select.innerHTML = '<option value="">-- 请选择存档 --</option>';
+
+                // 更新自定义下拉框菜单
+                const menu = document.getElementById('profile-menu');
+                menu.innerHTML = '<div class="cyber-dropdown-item placeholder" data-value="" onclick="selectProfile(\'\', \'-- 请选择存档 --\')">-- 请选择存档 --</div>';
+
+                profiles.forEach(p => {
+                    // 原生select
+                    const option = document.createElement('option');
+                    option.value = p.id;
+                    option.textContent = `${p.name} [${p.steam_id}]`;
+                    select.appendChild(option);
+
+                    // 自定义下拉框
+                    const item = document.createElement('div');
+                    item.className = 'cyber-dropdown-item';
+                    item.dataset.value = p.id;
+                    item.textContent = `${p.name} [${p.steam_id}]`;
+                    item.onclick = () => selectProfile(p.id, `${p.name} [${p.steam_id}]`);
+                    menu.appendChild(item);
+                });
+            } catch (error) {
+                showToast('加载存档列表失败', 'error');
+            }
+        }
+
+        async function loadGameData() {
+            try {
+                const response = await fetch('/api/game-data');
+                gameData = await response.json();
+            } catch (error) {
+                showToast('加载游戏数据失败', 'error');
+            }
+        }
+
+        async function loadProfile() {
+            const profileId = document.getElementById('profile-select').value;
+            if (!profileId) {
+                currentProfile = null;
+                profileData = null;
+                document.getElementById('stats-display').classList.remove('active');
+                document.getElementById('nav-tabs').classList.remove('active');
+                document.getElementById('empty-state').style.display = 'block';
+                document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+                // 重置下拉框文本
+                document.querySelector('#profile-dropdown .dropdown-text').textContent = '-- 请选择存档 --';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/profile/${profileId}`);
+                profileData = await response.json();
+                currentProfile = profileId;
+
+                document.getElementById('stats-display').classList.add('active');
+                document.getElementById('nav-tabs').classList.add('active');
+                document.getElementById('empty-state').style.display = 'none';
+                document.querySelectorAll('.panel').forEach(p => p.style.display = '');
+
+                updateStats();
+                renderCharacters();
+                renderItems();
+                renderAchievements();
+                renderLogbook();
+                document.getElementById('coins-input').value = profileData.coins;
+
+            } catch (error) {
+                showToast('加载存档失败', 'error');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('stat-characters').textContent = profileData.characters.length;
+            document.getElementById('stat-items').textContent = profileData.items.length;
+            document.getElementById('stat-achievements').textContent = profileData.achievements.length;
+            document.getElementById('stat-logbook').textContent = profileData.logbook_total;
+            document.getElementById('stat-coins').textContent = profileData.coins.toLocaleString();
+        }
+
+        function renderCharacters() {
+            const grid = document.getElementById('character-grid');
+            grid.innerHTML = '';
+
+            const unlockedChars = profileData.characters.map(c => c.toLowerCase());
+            const unlockedSkills = profileData.skills_skins.map(s => s.toLowerCase());
+
+            Object.entries(gameData.Characters || {}).forEach(([name, info]) => {
+                const charKey = `Characters.${name}`;
+                const isUnlocked = unlockedChars.includes(charKey.toLowerCase());
+
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.innerHTML = `
+                    <div class="character-header">
+                        <span class="character-name">${name}</span>
+                        <span class="character-status ${isUnlocked ? 'unlocked' : 'locked'}">${isUnlocked ? '已解锁' : '未解锁'}</span>
+                    </div>
+                    <div class="character-skills">
+                        <div class="skill-row">
+                            <span class="skill-name">${charKey}</span>
+                            ${name !== 'Commando' ? `
+                                <button class="cyber-btn ${isUnlocked ? 'danger' : 'success'}" onclick="toggleUnlock('${charKey}', ${isUnlocked})">
+                                    ${isUnlocked ? '锁定' : '解锁'}
+                                </button>
+                            ` : '<span style="color: var(--lunar-silver); opacity: 0.5; font-size: 0.8rem;">默认</span>'}
+                        </div>
+                        ${(info.unlocks || []).map(skill => {
+                            const skillUnlocked = unlockedSkills.includes(skill.toLowerCase());
+                            return `
+                                <div class="skill-row">
+                                    <span class="skill-name">${skill}</span>
+                                    <button class="cyber-btn ${skillUnlocked ? 'danger' : 'success'}" onclick="toggleUnlock('${skill}', ${skillUnlocked})">
+                                        ${skillUnlocked ? '锁定' : '解锁'}
+                                    </button>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderItems() {
+            const grid = document.getElementById('item-grid');
+            grid.innerHTML = '';
+
+            const unlockedItems = profileData.items.map(i => i.toLowerCase());
+
+            (gameData.Items || []).forEach(item => {
+                const isUnlocked = unlockedItems.includes(item.toLowerCase());
+                const card = document.createElement('div');
+                card.className = `data-item ${isUnlocked ? 'unlocked' : 'locked'}`;
+                card.dataset.item = item.toLowerCase();
+                card.dataset.type = item.startsWith('Artifacts.') ? 'artifacts' : 'items';
+                card.dataset.status = isUnlocked ? 'unlocked' : 'locked';
+                card.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${item}</div>
+                        <div class="item-status">
+                            <span class="status-dot"></span>
+                            ${isUnlocked ? '已解锁' : '未解锁'}
+                        </div>
+                    </div>
+                    <button class="cyber-btn ${isUnlocked ? 'danger' : 'success'}" onclick="toggleUnlock('${item}', ${isUnlocked})">
+                        ${isUnlocked ? '锁定' : '解锁'}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderAchievements() {
+            const grid = document.getElementById('achievement-grid');
+            grid.innerHTML = '';
+
+            const unlockedAchis = profileData.achievements.map(a => a.toLowerCase());
+
+            (gameData.Achievements || []).forEach(achi => {
+                const isUnlocked = unlockedAchis.includes(achi.toLowerCase());
+                const card = document.createElement('div');
+                card.className = `data-item ${isUnlocked ? 'unlocked' : 'locked'}`;
+                card.dataset.achievement = achi.toLowerCase();
+                card.dataset.status = isUnlocked ? 'unlocked' : 'locked';
+                card.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${achi}</div>
+                        <div class="item-status">
+                            <span class="status-dot"></span>
+                            ${isUnlocked ? '已解锁' : '未解锁'}
+                        </div>
+                    </div>
+                    <button class="cyber-btn ${isUnlocked ? 'danger' : 'success'}" onclick="toggleAchievement('${achi}', ${isUnlocked})">
+                        ${isUnlocked ? '锁定' : '解锁'}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderLogbook() {
+            const grid = document.getElementById('logbook-grid');
+            grid.innerHTML = '';
+
+            const logbook = gameData.Logbook || {};
+            const allLogbook = [
+                ...(logbook.Items || []),
+                ...(logbook.Equipment || []),
+                ...(logbook.Artifacts || []),
+                ...(logbook.Drones || [])
+            ];
+
+            const unlockedLogbook = [
+                ...(profileData.logbook.items || []),
+                ...(profileData.logbook.equipment || []),
+                ...(profileData.logbook.artifacts || []),
+                ...(profileData.logbook.drones || [])
+            ].map(l => l.toLowerCase());
+
+            allLogbook.forEach(item => {
+                const isUnlocked = unlockedLogbook.includes(item.toLowerCase());
+                let category = 'Items';
+                if (item.startsWith('EquipmentIndex.')) category = 'Equipment';
+                else if (item.startsWith('ArtifactIndex.')) category = 'Artifacts';
+                else if (item.startsWith('DroneIndex.')) category = 'Drones';
+
+                const card = document.createElement('div');
+                card.className = `data-item ${isUnlocked ? 'unlocked' : 'locked'}`;
+                card.dataset.logbook = item.toLowerCase();
+                card.dataset.category = category;
+                card.dataset.status = isUnlocked ? 'unlocked' : 'locked';
+                card.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${item}</div>
+                        <div class="item-meta">${category}</div>
+                        <div class="item-status">
+                            <span class="status-dot"></span>
+                            ${isUnlocked ? '已解锁' : '未解锁'}
+                        </div>
+                    </div>
+                    <button class="cyber-btn ${isUnlocked ? 'danger' : 'success'}" onclick="toggleLogbook('${item}', ${isUnlocked})">
+                        ${isUnlocked ? '锁定' : '解锁'}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterItems() {
+            const search = document.getElementById('item-search').value.toLowerCase();
+            const filter = document.getElementById('item-filter').value;
+            document.querySelectorAll('#item-grid .data-item').forEach(card => {
+                const item = card.dataset.item;
+                const type = card.dataset.type;
+                const status = card.dataset.status;
+                let show = true;
+                if (search && !item.includes(search)) show = false;
+                if (filter === 'unlocked' && status !== 'unlocked') show = false;
+                if (filter === 'locked' && status !== 'locked') show = false;
+                if (filter === 'items' && type !== 'items') show = false;
+                if (filter === 'artifacts' && type !== 'artifacts') show = false;
+                card.style.display = show ? '' : 'none';
+            });
+        }
+
+        function filterAchievements() {
+            const search = document.getElementById('achievement-search').value.toLowerCase();
+            const filter = document.getElementById('achievement-filter').value;
+            document.querySelectorAll('#achievement-grid .data-item').forEach(card => {
+                const achi = card.dataset.achievement;
+                const status = card.dataset.status;
+                let show = true;
+                if (search && !achi.includes(search)) show = false;
+                if (filter === 'unlocked' && status !== 'unlocked') show = false;
+                if (filter === 'locked' && status !== 'locked') show = false;
+                card.style.display = show ? '' : 'none';
+            });
+        }
+
+        function filterLogbook() {
+            const search = document.getElementById('logbook-search').value.toLowerCase();
+            const category = document.getElementById('logbook-category').value;
+            const filter = document.getElementById('logbook-filter').value;
+            document.querySelectorAll('#logbook-grid .data-item').forEach(card => {
+                const item = card.dataset.logbook;
+                const itemCategory = card.dataset.category;
+                const status = card.dataset.status;
+                let show = true;
+                if (search && !item.includes(search)) show = false;
+                if (category !== 'all' && itemCategory !== category) show = false;
+                if (filter === 'unlocked' && status !== 'unlocked') show = false;
+                if (filter === 'locked' && status !== 'locked') show = false;
+                card.style.display = show ? '' : 'none';
+            });
+        }
+
+        async function toggleUnlock(element, isUnlocked) {
+            if (!currentProfile) return;
+            const endpoint = isUnlocked ? 'lock' : 'unlock';
+            try {
+                const response = await fetch(`/api/profile/${currentProfile}/${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ element })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(isUnlocked ? '已锁定' : '已解锁', 'success');
+                    await loadProfile();
+                } else {
+                    showToast(result.message || '操作失败', 'error');
+                }
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function toggleAchievement(achievement, isUnlocked) {
+            if (!currentProfile) return;
+            const endpoint = isUnlocked ? 'lock-achievement' : 'unlock-achievement';
+            try {
+                const response = await fetch(`/api/profile/${currentProfile}/${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ achievement })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(isUnlocked ? '已锁定' : '已解锁', 'success');
+                    await loadProfile();
+                } else {
+                    showToast(result.message || '操作失败', 'error');
+                }
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function toggleLogbook(item, isUnlocked) {
+            if (!currentProfile) return;
+            const endpoint = isUnlocked ? 'lock-logbook' : 'unlock-logbook';
+            try {
+                const response = await fetch(`/api/profile/${currentProfile}/${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ item })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(isUnlocked ? '已锁定' : '已解锁', 'success');
+                    await loadProfile();
+                } else {
+                    showToast(result.message || '操作失败', 'error');
+                }
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function unlockAllCharacters() {
+            if (!currentProfile) return;
+            try {
+                const unlockedChars = profileData.characters.map(c => c.toLowerCase());
+                const unlockedSkills = profileData.skills_skins.map(s => s.toLowerCase());
+                let count = 0;
+                for (const [name, info] of Object.entries(gameData.Characters || {})) {
+                    const charKey = `Characters.${name}`;
+                    if (!unlockedChars.includes(charKey.toLowerCase()) && name !== 'Commando') {
+                        await fetch(`/api/profile/${currentProfile}/unlock`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ element: charKey })
+                        });
+                        count++;
+                    }
+                    for (const skill of (info.unlocks || [])) {
+                        if (!unlockedSkills.includes(skill.toLowerCase())) {
+                            await fetch(`/api/profile/${currentProfile}/unlock`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ element: skill })
+                            });
+                            count++;
+                        }
+                    }
+                }
+                showToast(`已解锁 ${count} 项`, 'success');
+                await loadProfile();
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function unlockAllItems() {
+            if (!currentProfile) return;
+            try {
+                const unlockedItems = profileData.items.map(i => i.toLowerCase());
+                let count = 0;
+                for (const item of (gameData.Items || [])) {
+                    if (!unlockedItems.includes(item.toLowerCase())) {
+                        await fetch(`/api/profile/${currentProfile}/unlock`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ element: item })
+                        });
+                        count++;
+                    }
+                }
+                showToast(`已解锁 ${count} 项`, 'success');
+                await loadProfile();
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function lockAllItems() {
+            if (!currentProfile) return;
+            try {
+                let count = 0;
+                for (const item of profileData.items) {
+                    await fetch(`/api/profile/${currentProfile}/lock`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ element: item })
+                    });
+                    count++;
+                }
+                showToast(`已锁定 ${count} 项`, 'success');
+                await loadProfile();
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function unlockAllAchievements() {
+            if (!currentProfile) return;
+            try {
+                const unlockedAchis = profileData.achievements.map(a => a.toLowerCase());
+                let count = 0;
+                for (const achi of (gameData.Achievements || [])) {
+                    if (!unlockedAchis.includes(achi.toLowerCase())) {
+                        await fetch(`/api/profile/${currentProfile}/unlock-achievement`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ achievement: achi })
+                        });
+                        count++;
+                    }
+                }
+                showToast(`已解锁 ${count} 个成就`, 'success');
+                await loadProfile();
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function lockAllAchievements() {
+            if (!currentProfile) return;
+            try {
+                let count = profileData.achievements.length;
+                for (const achi of profileData.achievements) {
+                    await fetch(`/api/profile/${currentProfile}/lock-achievement`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ achievement: achi })
+                    });
+                }
+                showToast(`已锁定 ${count} 个成就`, 'success');
+                await loadProfile();
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function unlockAllLogbook() {
+            if (!currentProfile) return;
+            try {
+                const response = await fetch(`/api/profile/${currentProfile}/unlock-logbook`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const result = await response.json();
+                showToast(`已解锁 ${result.count} 条图鉴`, 'success');
+                await loadProfile();
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function clearLogbook() {
+            if (!currentProfile) return;
+            try {
+                await fetch(`/api/profile/${currentProfile}/clear-logbook`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                showToast('图鉴已清空', 'success');
+                await loadProfile();
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function unlockEverything() {
+            if (!currentProfile) return;
+            try {
+                const response = await fetch(`/api/profile/${currentProfile}/unlock-all`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                showToast(`已解锁 ${result.count} 项`, 'success');
+                await loadProfile();
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function lockEverything() {
+            if (!currentProfile) return;
+            try {
+                await fetch(`/api/profile/${currentProfile}/lock-all`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                showToast('全部已锁定', 'success');
+                await loadProfile();
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        async function setCoins(value) {
+            if (!currentProfile) return;
+            const coins = value !== undefined ? value : parseInt(document.getElementById('coins-input').value) || 0;
+            try {
+                const response = await fetch(`/api/profile/${currentProfile}/coins`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ coins })
+                });
+                const result = await response.json();
+                showToast(`月球币已设置为 ${result.coins}`, 'success');
+                document.getElementById('coins-input').value = result.coins;
+                document.getElementById('stat-coins').textContent = result.coins.toLocaleString();
+            } catch (error) {
+                showToast('操作失败', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${type === 'success' ? '✓' : '✗'}</span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(50px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
